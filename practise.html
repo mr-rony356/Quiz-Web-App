@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driving Theory App</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <section id="mainPageSection" class="container mx-auto p-8 m-4 ">
+        <div class="flex justify-between">
+            <div>
+                <h1 class="bgGray text-2xl"><a href="./index.html"> Home page  </a></h1>
+
+            </div>
+            <div>
+                <h1 class="bgGray text-2xl"><a class="bg-gray  rounded-2xl p-4" href="./profile.html"> 1/30</a></h1>
+            </div>
+
+        </div>
+        <div class="mt-20 text-center flex justify-center items-center  flex-col gap-8">
+            <div class="bg-gray">
+                <p class="border-4 min-w-sm  bgGray"><a href="./practise.html"> Practice questions</a></p>
+            </div>
+        </div>
+
+    </section>
+    <div id="quiz-container">
+        <div id="question"></div>
+        <div id="options"></div>
+        <button id="next-btn">Next</button>
+        <div id="result"></div>
+    </div>
+    <script>
+        const quizData = [
+            {
+                question: "Question 1?",
+
+                options: [
+                    "Option 1",
+
+                    "Option 2",
+
+                    "Option 3",
+
+                    "Option 4"],
+                answer: 0 // Index of the correct answer in the options array
+            },
+            {
+                question: "Question 2?",
+
+                options: [
+                    "Option 1",
+
+                    "Option 2",
+
+                    "Option 3",
+
+                    "Option 4"],
+
+                answer: 3 // Index of the correct answer in the options array
+            },
+            // Add more questions similarly
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const nextButton = document.getElementById('next-btn');
+        const resultElement = document.getElementById('result');
+
+        function loadQuestion() {
+            const currentQuizData = quizData[currentQuestion];
+            questionElement.textContent = currentQuizData.question;
+            optionsElement.innerHTML = '';
+            currentQuizData.options.forEach((option, index) => {
+                const optionElement = document.createElement('button');
+                optionElement.textContent = option;
+                optionElement.classList.add('option-btn');
+                optionElement.addEventListener('click', () => {
+                    // Disable all other options
+                    const allOptions = document.querySelectorAll('.option-btn');
+                    allOptions.forEach((opt, idx) => {
+                        if (idx !== index) {
+                            opt.disabled = true;
+                        }
+                    });
+                    optionElement.classList.add('clicked'); // Add clicked class to clicked option
+                    if (index === currentQuizData.answer) {
+                        score++;
+                    }
+                });
+                optionsElement.appendChild(optionElement);
+            });
+        }
+
+        function showResult() {
+            resultElement.textContent = `You got ${score} out of ${quizData.length} questions correct.`;
+            nextButton.style.display = 'none';
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        nextButton.addEventListener('click', nextQuestion);
+
+        window.addEventListener('DOMContentLoaded', loadQuestion);
+    </script>
+
+</body>
+
+</html>
