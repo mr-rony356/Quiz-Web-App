@@ -7,31 +7,324 @@
     <title>Driving Theory App</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+
+        #display {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .container button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #start-btn {
+            background-color: green;
+            color: white;
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+
+        }
+
+        #stop {
+            background-color: red;
+            color: white;
+            display: none;
+        }
+
+        #reset {
+            background-color: gray;
+            color: white;
+            display: none;
+        }
+    </style>
+
 </head>
 
 <body>
+    <div class="container">
+        <div id="display">00:00:00</div>
+            <button id="stop" disabled>Stop</button>
+            <button id="reset" disabled>Reset</button>
+    </div>
 
-    <!-- Login Section -->
 
-    <!-- Main Page Section -->
-    <!-- Main Page Section -->
-    <section id="mainPageSection" class="container mx-auto p-8 m-4 ">
-        <div class="flex justify-center">
+    <section id="mainPageSection" class=" mx-auto p-8 m-4 ">
+
+        <div class="flex justify-between">
             <div>
-                <h1 class="bgGray text-2xl"><a href="./index.html"> Mock Test </a></h1>
+                <h1 class="bgGray text-2xl"><a href="./index.html"> Home page </a></h1>
 
+            </div>
+            <div>
+                <h1 class="bgGray text-2xl"><a class="bg-gray  rounded-2xl p-4" href="./profile.html"> <span
+                            id="current-question">1</span>/<span id="total-question">20</span></a></h1>
             </div>
 
         </div>
-        <div class="mt-40 text-center flex justify-center items-center  flex-col gap-8">
+        <div class="mt-20 text-center flex justify-center items-center  flex-col gap-8">
             <div class="bg-gray">
-                <p class="border-4 min-w-sm  bgGray"><a href="./practise.html"> Practice questions</a></p>
+                <p class="border-4 min-w-sm  bgGray"><a href="./practise.html"> Mock test questions</a></p>
             </div>
-                                </div>
-    
+        </div>
+
     </section>
+    <div id="quiz-container">
+        <div id="question"></div>
+        <div id="options"></div>
+        <button id="next-btn">Next</button>
+        <div id="result"></div>
+    </div>
+    <!-- Overlay for showing result -->
+    <div id="overlay" class="overlay">
+        <div class="overlay-content">
+            <h1 class="">Practice Questions</h1>
+            <h2>Total Marks: <span id="total-marks"></span></h2> <br>
+            <button id="restart-btn" class="bgGray"><a href="./practise.html">Try Again</a></button>
+            <button id="home-btn " class="bgGray"><a href="./index.html">Return to Home Page</a></button> <br>
 
+        </div>
+    </div>
 
+    <div id="timer-container" style="display:none;">
+        <label for="num-questions">Choose how many questions you want</label>
+        <div id="num-questions" style="padding: 15px;" >
+            <p value="5" class="bgGray" style="margin: 10px; ">5</p>
+            <p value="10" class="bgGray">10</p>
+        </div>
+        <br>
+        <button id="start-btn">Start Test</button>
+    </div>
+    <script>
+        const quizData = [
+            {
+                question: "What should you do when approaching a roundabout?",
+                options: ["Always stop before entering", "Give way to traffic from the right", "Signal left and speed up", "Overtake on the left"],
+                answer: 0 // Index of the correct answer in the options array
+            },
+            {
+                question: "Question 2?",
+                options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+                answer: 3 // Index of the correct answer in the options array
+            },
+            {
+                question: "Question 2?",
+                options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+                answer: 3 // Index of the correct answer in the options array
+            },
+            {
+                question: "Question 2?",
+                options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+                answer: 3 // Index of the correct answer in the options array
+            },
+            {
+                question: "Question 2?",
+                options: ["Option 1", "Option 2", "Option 3", "Option 4"],
+                answer: 3 // Index of the correct answer in the options array
+            },
+            // Add more questions similarly
+        ];
+    
+        let currentQuestion = 0;
+        let score = 0;
+        let timerInterval;
+        let duration;
+        let numQuestions;
+    
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const nextButton = document.getElementById('next-btn');
+        const resultElement = document.getElementById('result');
+        const overlay = document.getElementById('overlay');
+        const totalMarksElement = document.getElementById('total-marks');
+        const homeButton = document.getElementById('home-btn');
+        const restartButton = document.getElementById('restart-btn');
+        const currentQuestionElement = document.getElementById('current-question');
+        const totalQuestionElement = document.getElementById('total-question');
+        const timerDisplay = document.getElementById('timer-display');
+        const numQuestionsSelect = document.getElementById('num-questions');
+        const startButton = document.getElementById('start-btn');
+        const timerContainer = document.getElementById('timer-container');
+        const quizContainer = document.getElementById('quiz-container');
+    
+        function startTest() {
+            numQuestions = parseInt(numQuestionsSelect.value);
+            if (isNaN(numQuestions)) {
+                alert('Please select the number of questions.');
+                return;
+            }
+            duration = numQuestions === 5 ? 5 : 10; // Set timer duration based on the number of questions
+            timerContainer.style.display = 'none';
+            quizContainer.style.display = 'block';
+            loadQuestion();
+            startTimer();
+        }
+    
+        function startTimer() {
+            let timer = duration * 60;
+            timerInterval = setInterval(() => {
+                const minutes = Math.floor(timer / 60);
+                let seconds = timer % 60;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                timerDisplay.textContent = `${minutes}:${seconds}`;
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                    showResult();
+                }
+            }, 1000);
+        }
+    
+        function loadQuestion() {
+            const currentQuizData = quizData[currentQuestion];
+            questionElement.textContent = currentQuizData.question;
+            optionsElement.innerHTML = '';
+            currentQuizData.options.forEach((option, index) => {
+                const optionElement = document.createElement('button');
+                optionElement.textContent = option;
+                optionElement.classList.add('option-btn');
+                optionElement.addEventListener('click', () => {
+                    // Disable all other options
+                    const allOptions = document.querySelectorAll('.option-btn');
+                    allOptions.forEach((opt, idx) => {
+                        if (idx !== index) {
+                            opt.disabled = true;
+                        }
+                    });
+                    // Check if the selected option is correct or wrong
+                    if (index === currentQuizData.answer) {
+                        optionElement.classList.add('correct'); // Add class for correct option
+                        score++; // Increment score for correct selection
+                    } else {
+                        optionElement.classList.add('wrong'); // Add class for wrong option
+                        const correctOptionIndex = currentQuizData.answer;
+                        const correctOption = optionsElement.children[correctOptionIndex];
+                        correctOption.classList.add('correct-bg'); // Add green background to correct option
+                    }
+                });
+                optionsElement.appendChild(optionElement);
+            });
+            currentQuestionElement.textContent = currentQuestion + 1; // Update current question number
+            totalQuestionElement.textContent = numQuestions;
+        }
+    
+        function showResult() {
+            resultElement.textContent = `You got ${score} out of ${numQuestions} questions correct.`;
+            nextButton.style.display = 'none';
+            totalMarksElement.textContent = score;
+            overlay.style.display = 'flex'; // Show overlay
+    
+            // Save history to local storage
+            const history = JSON.parse(localStorage.getItem('history')) || [];
+            history.push({ date: new Date(), score: score, totalQuestions: numQuestions });
+            localStorage.setItem('history', JSON.stringify(history));
+        }
+    
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < numQuestions) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+    
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            loadQuestion();
+            nextButton.style.display = 'block';
+            resultElement.textContent = '';
+            overlay.style.display = 'none';
+        }
+    
+        nextButton.addEventListener('click', nextQuestion);
+        startButton.addEventListener('click', startTest);
+    
+        window.addEventListener('DOMContentLoaded', () => {
+            // Show timer container and hide quiz container initially
+            timerContainer.style.display = 'block';
+            quizContainer.style.display = 'none';
+        });
+    </script>
+    <script>
+        const display = document.getElementById('display');
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop');
+        const resetBtn = document.getElementById('reset');
+    
+        let startTime;
+        let elapsedTime = 0;
+        let intervalId;
+        let isRunning = false;
+        let tenMinutes = 6000; // 10 minutes in milliseconds
+    
+        startBtn.addEventListener('click', startStop);
+        stopBtn.addEventListener('click', startStop);
+        resetBtn.addEventListener('click', reset);
+    
+        function startStop() {
+            if (isRunning) {
+                clearInterval(intervalId);
+                stopBtn.disabled = true;
+                resetBtn.disabled = false;
+            } else {
+                startTime = Date.now() - elapsedTime;
+                intervalId = setInterval(updateTime, 10);
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+            }
+            isRunning = !isRunning;
+        }
+    
+        function updateTime() {
+            elapsedTime = Date.now() - startTime;
+            if (elapsedTime >= tenMinutes) {
+                clearInterval(intervalId);
+                elapsedTime = tenMinutes;
+                isRunning = false;
+                stopBtn.disabled = true;
+                resetBtn.disabled = false;
+                console.log("time up")
+                showResult()
+            }
+            const seconds = Math.floor((elapsedTime / 1000) % 60);
+            const minutes = Math.floor((elapsedTime / (1000 * 60)) % 60);
+            const hours = Math.floor((elapsedTime / (1000 * 60 * 60)) % 24);
+    
+            display.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+    
+        function reset() {
+            clearInterval(intervalId);
+            elapsedTime = 0;
+            isRunning = false;
+            display.textContent = '00:00:00';
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            resetBtn.disabled = true;
+        }
+    
+    </script>
+    
 </body>
+
 
 </html>

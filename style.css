@@ -26,7 +26,13 @@ button.option-btn {
     justify-content: center;
     align-items: center;
 }
-.clicked{
+.correct{
+    background-color: rgb(40, 203, 40) !important;
+}
+.wrong{
+    background-color: red !important;
+}
+.correct-bg{
     background-color: rgb(40, 203, 40) !important;
 }
 #quiz-container{
@@ -43,3 +49,72 @@ button.option-btn {
     width: 250px;
     padding: 20px;
 }
+
+  /* Add your CSS styles here */
+  .overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.overlay-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 25px;
+    text-align: center;
+    min-width: 60vw;
+}
+.overlay-content button{
+    margin: 20px;
+    width: 80%;
+}
+.overlay-content h1{
+    margin: 50px 0;
+    font-weight: 900;
+    font-size: 35px;
+}.overlay-content h2{
+    font-weight: 900;
+    border: 2px solid gray;
+    display: inline-block;
+    font-size: 25px;
+    padding: 15px;
+}
+/* Reset default styles (optional, but recommended for consistency) */
+select {
+    box-sizing: border-box;
+    /* Additional resets can be added here if needed */
+  }
+  
+  /* Style the select element itself */
+  .select {
+    /* Adjust these properties for desired appearance */
+    padding: 15px;
+    border: 1px solid #ccc; /* Example border */
+    border-radius: 5px; /* Example rounded corners */
+    font-size: 16px;
+    cursor: pointer;
+    /* Add more styles as needed */
+  }
+  
+  /* Style the options within the select element */
+  .select option {
+    padding: 5px 10px; /* Adjust padding for options */
+  }
+  
+  #timer-container label{
+    font-size: 30px;
+  }
+  #timer-container{
+    width: 100%;
+    text-align: center;
+  }
